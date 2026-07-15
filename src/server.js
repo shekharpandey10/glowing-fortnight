@@ -38,7 +38,7 @@ app.get('/health', (req, res) => {
 
 
 app.use('/', (req, res) => {
-    res.status(200).json({
+    res.status(200).json(ResponseFormatter.success({
         service: 'api monitoring system',
         version: '1.0.0',
         endpoints: {
@@ -47,7 +47,7 @@ app.use('/', (req, res) => {
             ingest: '/api/hits',
             anlytics: '/api/anlytics'
         }
-    }, 'Api hit monitoring system')
+    }, 'Api hit monitoring system'))
 })
 
 
@@ -114,17 +114,17 @@ async const startServer = () => {
                 process.exit(1)
             }, 10000);
 
-
-            process.on('SIGTERM', () => {   //Signal terminate
-                gracefulShutdown('SIGTERM')
-            })
-            process.on('SIGINT', () => {  //signal interupt
-                gracefulShutdown('SIGINT')
-            })
-
-            process.on('uncaughtException', () => gracefulShutdown('uncaughtException'))
-            process.on('unhandledRejection', () => gracefulShutdown('unhandledRejection'))
         }
+        process.on('SIGTERM', () => {   //Signal terminate
+            gracefulShutdown('SIGTERM')
+        })
+        process.on('SIGINT', () => {  //signal interupt
+            gracefulShutdown('SIGINT')
+        })
+
+        process.on('uncaughtException', () => gracefulShutdown('uncaughtException'))
+        process.on('unhandledRejection', () => gracefulShutdown('unhandledRejection'))
+
     } catch (error) {
         logger.error('Failed to start server ', error)
         process.exit(1)
