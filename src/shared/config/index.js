@@ -30,7 +30,7 @@ const config = {
         queue: process.env.RABBITMQ_QUEUE,
         publisherConfirms: process.env.RABBITMQ_PUBLISHER_CONFIRMS || false,
         retryAttampts: parseInt(process.env.RABBITMQ_RETRY_ATTAMPTS) || 3,
-        retryDeley: parseInt(processe.env.RABBITMQ_RETRY_DELEY) || 1000
+        retryDeley: parseInt(process.env.RABBITMQ_RETRY_DELEY) || 1000
     },
 
     jwt: {

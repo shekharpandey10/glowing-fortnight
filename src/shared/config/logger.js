@@ -24,7 +24,7 @@ const logger = winston.createLogger({
 
 if (config.node_env !== 'production') {
     logger.add(new winston.transports.Console({
-        format: winston.combine(
+        format: winston.format.combine(
             winston.format.colorize(),
             winston.format.simple()
         )
