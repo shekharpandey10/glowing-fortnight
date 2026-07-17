@@ -13,7 +13,7 @@ class ResponseFormatter {
             data: data,
             message: message,
             statusCode: statusCode,
-            timestamp: Date.now().toISOString()
+            timestamp: new Date().toISOString()
         }
     }
 
@@ -30,7 +30,7 @@ class ResponseFormatter {
             error,
             message: message,
             statusCode: statusCode,
-            timestamp: Date.now().toISOString()
+            timestamp: new Date().toISOString()
         }
     }
 
@@ -45,7 +45,7 @@ class ResponseFormatter {
             error,
             message: "Validation failed",
             statusCode: 400,
-            timestamp: Date.now().toISOString()
+            timestamp: new Date().toISOString()
         }
     }
 
@@ -67,7 +67,7 @@ class ResponseFormatter {
                 total,
                 totalPages: Math.ceil(total / limit)
             },
-            timestamp: Date.now().toISOString()
+            timestamp: new Date().toISOString()
         }
     }
 

@@ -68,4 +68,4 @@ class MongoConnection {
     }
 }
 
-export default MongoConnection
+export default new MongoConnection
