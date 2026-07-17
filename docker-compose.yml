@@ -39,7 +39,7 @@ services:
     container_name: api_monitoring-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: api_user
-      RABBITMQ_DEFAULT_PASS: secure_password
+      RABBITMQ_DEFAULT_PASS: shekhar
       RABBITMQ_DEFAULT_VHOST: api_monitoring
     ports:
       - "5672:5672"
@@ -60,7 +60,7 @@ services:
     container_name: api_monitoring-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: abc@yopmail.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_PASSWORD: shekhar
     ports:
       - "8080:80"
     volumes:
@@ -88,7 +88,7 @@ services:
       PG_PORT: 5432
       PG_DATABASE: api_monitoring
       PG_USER: postgres
-      PG_PASSWORD: rahul
+      PG_PASSWORD: shekhar
       # RabbitMQ (Docker container)
       RABBITMQ_URL: amqp://api_user:secure_password@rabbitmq:5672/api_monitoring
       RABBITMQ_QUEUE: api_hits
@@ -130,7 +130,7 @@ services:
   #     PG_PORT: 5432
   #     PG_DATABASE: api_monitoring
   #     PG_USER: postgres
-  #     PG_PASSWORD: rahul
+  #     PG_PASSWORD: shekhar
   #     # RabbitMQ (Docker container)
   #     RABBITMQ_URL: amqp://api_user:secure_password@rabbitmq:5672/api_monitoring
   #     RABBITMQ_QUEUE: api_hits

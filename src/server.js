@@ -35,7 +35,7 @@ app.get('/health', (req, res) => {
 })
 
 
-app.use('/', (req, res) => {
+app.get('/', (req, res) => {
     res.status(200).json(ResponseFormatter.success({
         service: 'api monitoring system',
         version: '1.0.0',
