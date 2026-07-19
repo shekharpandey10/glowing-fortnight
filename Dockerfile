@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:20.19-alpine
 
 WORKDIR /app
 
@@ -9,7 +9,8 @@ COPY package*.json ./
 
 #install packages
 
-RUN npm install --production    
+RUN npm install    
+# RUN npm install --production    
 
 #copy All from this root to current root 
 COPY . .

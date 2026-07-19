@@ -10,7 +10,7 @@ class Container {
 
 
         const services = {
-            authService: new AuthService(repositories.UserRepository)
+            authService: new AuthService(new repositories.UserRepository)
         }
 
 

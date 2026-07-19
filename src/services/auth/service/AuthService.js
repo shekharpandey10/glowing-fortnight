@@ -22,18 +22,18 @@ export default class AuthService {
     }
 
     formatUserForResponse(user) {
-        const userObj = userObj.toObject ? userObj.toObject() : { ...user }
+        const userObj = user.toObject ? user.toObject() : { ...user }
         delete userObj.password
         return userObj
     }
 
     async onboardSuperadmin(superAdminData) {
         try {
-            const existingUser = new this.userRepository.findAll();
+            const existingUser = await this.userRepository.findAll();
             if (existingUser && existingUser.length > 0) {
                 throw new AppError('Super admin onboarding is disable', 403)
             }
-            const user = new this.userRepository.create(superAdminData)
+            const user = await this.userRepository.create(superAdminData)
             const token = this.generateToken(user)
             logger.info('Admin onboarded. ', { username: user.username })
             return { user: this.formatUserForResponse(user), token }

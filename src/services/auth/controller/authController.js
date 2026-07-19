@@ -1,4 +1,5 @@
 import config from "../../../shared/config/index.js"
+import logger from "../../../shared/config/logger.js"
 import { APPLICATION_ROLES } from "../../../shared/constants/roles.js"
 import ResponseFormatter from "../../../shared/utils/ResponseFormatter.js"
 
@@ -28,6 +29,7 @@ class AuthController {
 
             res.status(200).json(ResponseFormatter.success(user, 'SuperAdmin Created Successfully', 201))
         } catch (error) {
+            logger.error(`Failed to create Super admin `, error)
             next(error)
         }
     }
