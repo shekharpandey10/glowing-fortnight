@@ -1,7 +1,7 @@
 import mongoose, { mongo } from "mongoose";
 import bcrypt from 'bcryptjs'
 import { validate } from "uuid";
-import SecurityUtils from "../utils/SecurityUtils";
+import SecurityUtils from "../utils/SecurityUtils.js";
 
 const userSchema = new mongoose.Schema({
     username: {

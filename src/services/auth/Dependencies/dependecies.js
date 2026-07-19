@@ -10,12 +10,12 @@ class Container {
 
 
         const services = {
-            authService=new AuthService(repositories.UserRepository)
+            authService: new AuthService(repositories.UserRepository)
         }
 
 
         const controllers = {
-            authController= new AuthController(services.authService)
+            authController: new AuthController(services.authService)
         }
 
         return { repositories, services, controllers }

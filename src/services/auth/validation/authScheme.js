@@ -1,4 +1,4 @@
-import { isValidRole } from "../../../shared/constants/roles"
+import { isValidRole } from "../../../shared/constants/roles.js"
 
 
 export const onboardSuperAdminSchema = {
@@ -10,7 +10,7 @@ export const onboardSuperAdminSchema = {
     },
     password: {
         required: true,
-        minLength: 6
+        minLength: 8
     }
 }
 
@@ -23,7 +23,7 @@ export const registrationSchema = {
     },
     password: {
         required: true,
-        minLength: 6
+        minLength: 8
     },
     role: {
         required: false,
@@ -42,6 +42,6 @@ export const loginSchema = {
 
     password: {
         required: true,
-        minLength: 6
+        minLength: 8
     },
 }

@@ -1,4 +1,4 @@
-import ResponseFormatter from "../utils/ResponseFormatter"
+import ResponseFormatter from "../utils/ResponseFormatter.js"
 
 const validate = (schema) => (req, res, next) => {
     if (!schema) {
@@ -19,8 +19,7 @@ const validate = (schema) => (req, res, next) => {
             errors.push(`${field}  is required`)
             return
         }
-
-        if (rule.minLength && typeof value === 'string' && value.length < minLength) {
+        if (rule?.minLength && typeof value === 'string' && value.length < rule.minLength) {
             errors.push(`${field}  nust be at least ${rule.minLength}  length`)
         }
 
@@ -34,6 +33,7 @@ const validate = (schema) => (req, res, next) => {
     if (errors.length > 0) {
         return res.status(400).json(ResponseFormatter.error(errors, 'Validation failed', 400))
     }
+    next()
 }
 
 export default validate
