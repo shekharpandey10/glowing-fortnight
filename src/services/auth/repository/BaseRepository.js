@@ -15,11 +15,9 @@ export default class BaseRepository {
 
     async findByUsername(data) {
         throw new Error('Method not implemented')
-
     }
     async findByEmail(data) {
         throw new Error('Method not implemented')
-
     }
     async findAll(data) {
         throw new Error('Method not implemented')
