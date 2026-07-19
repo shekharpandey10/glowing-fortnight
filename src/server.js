@@ -8,10 +8,16 @@ import postgres from './shared/config/postgres.js'
 import rabbitmq from './shared/config/rabbitmq.js'
 import errorHandler from './shared/middleware/errorHandler.js'
 import ResponseFormatter from './shared/utils/ResponseFormatter.js';
-
+import authRoute from './services/auth/routes/authRoute.js'
 
 const app = express()
 app.use(helmet())
+app.use(cors(
+    {
+        origin: true,
+        credentials: true
+    }
+))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -22,6 +28,12 @@ app.use((req, res, next) => {
     })
     next()
 })
+/**
+ * routes
+ */
+app.use('/api/auth', authRoute)
+
+
 
 
 app.get('/health', (req, res) => {
@@ -60,6 +72,11 @@ app.use((req, res) => {
     )
 })
 
+
+
+/**
+ * route handler
+ */
 app.use(errorHandler)
 
 
@@ -87,9 +104,10 @@ const startServer = async () => {
         await initConnection()
 
         const server = app.listen(config.port, () => {
-            logger.info('server is running on port ', config.port)
-            logger.info('server is running on Enviroment ', config.node_env)
-            logger.info('server is running on endpoint http://localhost:', config.port)
+            console.log(config.port)
+            logger.info(`server is running on port ${config.port || 5000}`)
+            logger.info(`server is running on Enviroment ${config.node_env}`)
+            logger.info(`server is running on endpoint http://localhost:${config.port}`)
         })
 
         const gracefulShutdown = async (signal) => {
