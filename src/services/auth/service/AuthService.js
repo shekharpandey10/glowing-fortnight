@@ -42,4 +42,24 @@ export default class AuthService {
             throw error
         }
     }
+
+    async register(userData) {
+        try {
+            const existingUser = await this.userRepository.findByUsername(userData.username)
+            if (existingUser) {
+                throw new AppError('User is already exists', 409)
+            }
+            const existingEmail = await this.userRepository.findByEmail(userData.email)
+            if (existingEmail) {
+                throw new AppError('User Email is already exists', 409)
+            }
+
+            const user = await this.userRepository.create(userData)
+            logger.info('User Registered successfully. ', { username: user.username })
+            return { user: this.formatUserForResponse(user), token }
+        } catch (error) {
+            logger.info('User register Error ', error)
+            throw error
+        }
+    }
 }

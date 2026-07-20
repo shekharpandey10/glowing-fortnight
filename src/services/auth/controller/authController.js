@@ -33,6 +33,32 @@ class AuthController {
             next(error)
         }
     }
+
+
+    async register(req, res, next) {
+        try {
+            const { username, password, email, role } = req.body
+            const userData = {
+                username,
+                email,
+                password,
+                role: role || APPLICATION_ROLES.CLIENT_VIEWER
+            }
+            const { token, user } = await this.authService.register(userData);
+
+            res.cookie('authToken', token, {
+                http: config.cookie.httpOnly,
+                secure: config.cookie.secure,
+                maxAge: config.cookie.expiresIn
+            })
+            res.status(200).json(ResponseFormatter.success(user, 'User Created Successfully', 201))
+
+
+        } catch (error) {
+            logger.error(`Failed to create User `, error)
+            next(error)
+        }
+    }
 }
 
 export default AuthController
