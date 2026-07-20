@@ -69,9 +69,31 @@ class AuthController {
                 secure: config.cookie.secure,
                 maxAge: config.cookie.expiresIn
             })
-            res.status(200).json(ResponseFormatter.success(user, 'User login Successfully', 201))
+            res.status(201).json(ResponseFormatter.success(user, 'User login Successfully', 201))
         } catch (error) {
             logger.error(`Failed to login User `, error)
+            next(error)
+        }
+    }
+
+    async getProfile(req, res, next) {
+        try {
+            const { userId, email, username, role, clientId } = req.user;
+            const userProfile = await this.authService.getProfile(userId)
+            res.status(200).json(ResponseFormatter.success(userProfile, 'User profile fetched Successfully', 200))
+        } catch (error) {
+            logger.error(`Failed to fetch User profile `, error)
+            next(error)
+        }
+    }
+
+
+    async logOut(req, res, next) {
+        try {
+            res.clearCookie('authToken')
+            res.status(200).json(ResponseFormatter.success({}, 'Logout  Successfully', 200))
+        } catch (error) {
+            logger.error(`Failed to  logout `, error)
             next(error)
         }
     }

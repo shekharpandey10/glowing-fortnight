@@ -99,4 +99,23 @@ export default class AuthService {
             throw error
         }
     }
+
+    async getProfile(userId) {
+        try {
+            if (!userId) {
+                throw new AppError('Invalid user', 401)
+            }
+
+            const user = await this.userRepository.findById(userId)
+
+            if (!user) {
+                throw new AppError('User not found', 404)
+
+            }
+            return this.formatUserForResponse(user)
+        } catch (error) {
+            logger.info('Profile fetch Error ', error)
+            throw error
+        }
+    }
 }
