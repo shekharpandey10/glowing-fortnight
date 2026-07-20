@@ -4,7 +4,7 @@ import ResponseFormatter from '../utils/ResponseFormatter.js'
 
 
 const errorHandler = async (error, req, res, next) => {
-    let statusCode = req.statusCode || 500;
+    let statusCode = error.statusCode || 500;
     let message = error.message || 'Internal server error'
     let errors = error.errors
 

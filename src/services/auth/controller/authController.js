@@ -11,7 +11,7 @@ class AuthController {
 
     async onboardSuperadmin(req, res, next) {
         try {
-            const { username, email, password } = req.body
+            const { username, email, password } = req.body || {}
             const superAdminData = {
                 username,
                 email,
@@ -22,7 +22,7 @@ class AuthController {
             const { user, token } = await this.authService.onboardSuperadmin(superAdminData)
 
             res.cookie('authToken', token, {
-                http: config.cookie.httpOnly,
+                httpOnly: config.cookie.httpOnly,
                 secure: config.cookie.secure,
                 maxAge: config.cookie.expiresIn
             })
@@ -37,7 +37,7 @@ class AuthController {
 
     async register(req, res, next) {
         try {
-            const { username, password, email, role } = req.body
+            const { username, password, email, role } = req.body || {}
             const userData = {
                 username,
                 email,
@@ -47,15 +47,31 @@ class AuthController {
             const { token, user } = await this.authService.register(userData);
 
             res.cookie('authToken', token, {
-                http: config.cookie.httpOnly,
+                httpOnly: config.cookie.httpOnly,
                 secure: config.cookie.secure,
                 maxAge: config.cookie.expiresIn
             })
             res.status(200).json(ResponseFormatter.success(user, 'User Created Successfully', 201))
 
-
         } catch (error) {
             logger.error(`Failed to create User `, error)
+            next(error)
+        }
+    }
+
+    async login(req, res, next) {
+        try {
+            const { username, password } = req.body || {};
+            const userData = { username, password }
+            const { user, token } = await this.authService.login(userData)
+            res.cookie('authToken', token, {
+                httpOnly: config.cookie.httpOnly,
+                secure: config.cookie.secure,
+                maxAge: config.cookie.expiresIn
+            })
+            res.status(200).json(ResponseFormatter.success(user, 'User login Successfully', 201))
+        } catch (error) {
+            logger.error(`Failed to login User `, error)
             next(error)
         }
     }

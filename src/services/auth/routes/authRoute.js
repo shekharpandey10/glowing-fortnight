@@ -24,4 +24,10 @@ router.post('/register',
     (req, res, next) => authController.register(req, res, next)
 )
 
+router.post('/login',
+    requestLogger,
+    validate(loginSchema),
+    (req, res, next) => authController.login(req, res, next)
+)
+
 export default router
