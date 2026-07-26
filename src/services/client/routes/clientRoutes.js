@@ -13,5 +13,6 @@ router.use(authenticate)
 
 
 router.post('/admin/onboard', requestLogger, (req, res, next) => clientController.createClient(req, res, next))
+router.post('/admin/clients/:clientId/users', requestLogger, (req, res, next) => clientController.createClientUser(req, res, next))
 
 export default router

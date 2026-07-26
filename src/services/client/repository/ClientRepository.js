@@ -19,7 +19,7 @@ class ClientRepository extends ClientBaseRepository {
         try {
             const client = await new this.model(clientData)
             await client.save()
-            await client.populate('createdBy')
+            await client.populate('createdBy', '-password')
 
             logger.info('Client created in mongodb', {
                 mongoId: client._id,
@@ -38,9 +38,9 @@ class ClientRepository extends ClientBaseRepository {
      * @returns {Promise<Object>}
      */
 
-    async findbySlug(slug) {
+    async findBySlug(slug) {
         try {
-            const client = await new this.model.findbySlug(slug)
+            const client = await this.model.findOne({ slug })
             logger.info('Client details from mongodb fetch by slug ', client)
 
             return client
@@ -59,7 +59,7 @@ class ClientRepository extends ClientBaseRepository {
 
     async findById(clientId) {
         try {
-            const client = await new this.model.findById(clientId)
+            const client = await this.model.findById(clientId)
             logger.info('Client details from mongodb fetch by id ', client)
             return client
         } catch (error) {
@@ -77,7 +77,7 @@ class ClientRepository extends ClientBaseRepository {
     async find(filter = {}, options = {}) {
         try {
             const { limit = 50, skip = 0, sort = { createdAt: -1 } } = options
-            const clients = await new this.model.find(filter)
+            const clients = await this.model.find(filter)
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)
@@ -98,7 +98,7 @@ class ClientRepository extends ClientBaseRepository {
      */
     async count(filter) {
         try {
-            const count = await new this.model.countDocuments(filter)
+            const count = await this.model.countDocuments(filter)
             logger.info('Client count from mongodb ', count)
             return count
         } catch (error) {

@@ -1,4 +1,5 @@
 import logger from "../../../shared/config/logger.js"
+import { APPLICATION_ROLES, isValidClientRole } from "../../../shared/constants/roles.js"
 import AppError from "../../../shared/utils/AppError.js"
 
 
@@ -40,6 +41,13 @@ class ClientService {
         return name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').trim()
     }
 
+    canUserAccessClient(adminUser, clientId) {
+        if (adminUser.role === APPLICATION_ROLES.SUPER_ADMIN) return true
+
+        return adminUser.clientId && adminUser.clientId.toString() === clientId.toString()
+    }
+
+
     async createClient(clientData, adminUser) {
         try {
             const { name, email, description, website = null } = clientData
@@ -57,6 +65,52 @@ class ClientService {
             return client
         } catch (error) {
             logger.error('Error while create client ', error)
+            throw error
+        }
+    }
+
+    async createClientUser(clientId, clientUserData, adminUser) {
+        try {
+            if (!this.canUserAccessClient(adminUser, clientId)) {
+                logger.error("doesn't have the access")
+                throw new AppError("Access denied", 403)
+            }
+            let { username, email, password, role = APPLICATION_ROLES.CLIENT_VIEWER } = clientUserData
+
+            if (!isValidClientRole(role)) {
+                throw new AppError("Give valid role, Access denied", 400)
+            }
+            const client = await this.ClientRepository.findById(clientId)
+            if (!client) {
+                throw new AppError("Client not found", 404)
+            }
+
+            let permissions = {
+                canCreateApiKey: false,
+                canManageUsers: false,
+                canViewAnalytics: true,
+                canExportData: false
+            }
+
+            if (role = APPLICATION_ROLES.CLIENT_ADMIN) {
+                permissions = {
+                    canCreateApiKey: true,
+                    canManageUsers: true,
+                    canViewAnalytics: true,
+                    canExportData: true
+                }
+            }
+
+            const userData = {
+                username, email, password, role,
+                permissions, clientId
+            }
+
+            const user = await this.UserRepository.create(userData)
+            logger.info('client user created successfully ', user)
+            return this.formatClientForResponse(user)
+        } catch (error) {
+            logger.error('error while client user creation ', error)
             throw error
         }
     }

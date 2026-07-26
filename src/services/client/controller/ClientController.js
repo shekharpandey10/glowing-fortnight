@@ -1,3 +1,4 @@
+import logger from "../../../shared/config/logger.js"
 import ResponseFormatter from "../../../shared/utils/ResponseFormatter.js"
 
 class ClientController {
@@ -15,21 +16,40 @@ class ClientController {
 
     async createClient(req, res, next) {
         try {
-
             const isSuperAdmin = await this.authService.checkSuperAdminPermissions(req.user.userId)
             if (!isSuperAdmin) {
                 return res.status(403).json(ResponseFormatter.error("Access denied", 403))
             }
             const clientData = req.body;
+            const adminUser = req.user
+            if (!adminUser) {
+                logger.error("Admin is not defined")
+
+                return res.status(403).json(ResponseFormatter.error({}, "Admin is not defined", 403))
+            }
 
 
-            const client = await this.clientService(clientData, adminUser)
-
-            return res.status(403).json(ResponseFormatter.success(client, "Client created successfully", 403))
-
+            const client = await this.clientService.createClient(clientData, adminUser)
+            logger.info("Client created successfully")
+            return res.status(201).json(ResponseFormatter.success(client, "Client created successfully", 201))
 
         } catch (error) {
+            next(error);
+            logger.error('Error while creating the client ', error)
+        }
+    }
+    async createClientUser(req, res, next) {
+        try {
+            console.log(req.body, 'req.bod')
+            const clientId = req.params.clientId
+            const user = await this.clientService.createClientUser(clientId, req.body, req.user)
 
+            logger.info("Client User created successfully")
+            return res.status(201).json(ResponseFormatter.success(user, "Client User created successfully", 201))
+
+        } catch (error) {
+            next(error);
+            logger.error('Error while creating the client user ', error)
         }
     }
 

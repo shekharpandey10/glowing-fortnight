@@ -18,7 +18,7 @@ class Container {
         console.log(repositories.clientRepository);
 
         const services = {
-            authService: new AuthService(new repositories.userRepository),
+            authService: new AuthService(new repositories.userRepository()),
             clientService: new ClientService({
                 clientRepository: new repositories.clientRepository(),
                 userRepository: new repositories.userRepository(),

@@ -13,7 +13,7 @@ class ClientBaseRepository {
     async findById(clientId) {
         throw new Error('Method not implemented.')
     }
-    async findbySlug(slug) {
+    async findBySlug(slug) {
         throw new Error('Method not implemented.')
     }
     async find(filter, options) {
