@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { validate } from "uuid";
-import SecurityUtils from "../utils/SecurityUtils";
+import SecurityUtils from "../utils/SecurityUtils.js";
 const clientSchema = new mongoose.Schema({
     name: {
         type: String,

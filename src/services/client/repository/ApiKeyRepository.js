@@ -89,4 +89,4 @@ class ApiKeyRepository extends ApiKeyBaseRepository {
 }
 
 
-export default new ApiKeyRepository()
+export default ApiKeyRepository

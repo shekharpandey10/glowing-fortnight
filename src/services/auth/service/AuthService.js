@@ -3,6 +3,7 @@ import AppError from '../../../shared/utils/AppError.js'
 import logger from '../../../shared/config/logger.js'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
+import { APPLICATION_ROLES } from '../../../shared/constants/roles.js';
 export default class AuthService {
     constructor(userRepository) {
         if (!userRepository) throw new Error('userRepository is required')
@@ -116,6 +117,21 @@ export default class AuthService {
         } catch (error) {
             logger.info('Profile fetch Error ', error)
             throw error
+        }
+    }
+
+
+    async checkSuperAdminPermissions(userId) {
+        try {
+            const user = await this.userRepository.findById(userId)
+
+            if (!user) {
+                throw new AppError("User not found", 404)
+            }
+
+            return user.role === APPLICATION_ROLES.SUPER_ADMIN
+        } catch (error) {
+
         }
     }
 }

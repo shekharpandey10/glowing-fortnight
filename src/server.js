@@ -9,6 +9,7 @@ import rabbitmq from './shared/config/rabbitmq.js'
 import errorHandler from './shared/middleware/errorHandler.js'
 import ResponseFormatter from './shared/utils/ResponseFormatter.js';
 import authRoute from './services/auth/routes/authRoute.js'
+import clientRoute from './services/client/routes/clientRoutes.js'
 import cookieParser from "cookie-parser";
 const app = express()
 app.use(helmet())
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
  * routes
  */
 app.use('/api/auth', authRoute)
+app.use('/api/client', clientRoute)
 
 
 

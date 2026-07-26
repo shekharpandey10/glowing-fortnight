@@ -1,11 +1,11 @@
-import ClientBaseRepository from "./ClientBaseRepository";
+import ClientBaseRepository from "./ClientBaseRepository.js";
 import Client from '../../../shared/models/Client.js'
 import logger from "../../../shared/config/logger.js";
 
 class ClientRepository extends ClientBaseRepository {
 
     constructor() {
-        super(client)
+        super(Client)
 
     }
 
@@ -19,6 +19,7 @@ class ClientRepository extends ClientBaseRepository {
         try {
             const client = await new this.model(clientData)
             await client.save()
+            await client.populate('createdBy')
 
             logger.info('Client created in mongodb', {
                 mongoId: client._id,
@@ -107,4 +108,4 @@ class ClientRepository extends ClientBaseRepository {
     }
 }
 
-export default new ClientRepository()
+export default ClientRepository
