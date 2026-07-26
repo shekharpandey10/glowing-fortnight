@@ -9,8 +9,8 @@ COPY package*.json ./
 
 #install packages
 
-RUN npm install    
-# RUN npm install --production    
+RUN npm install --ignore-scripts
+# RUN npm install --production --ignore-scripts 
 
 #copy All from this root to current root 
 COPY . .
