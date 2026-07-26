@@ -53,6 +53,32 @@ class ClientController {
         }
     }
 
+    async createApiKey(req, res, next) {
+        try {
+            const clientId = req.params.clientId;
+            const apiKey = await this.clientService.createApiKey(clientId, req.body, req.user)
+
+            logger.info("Client Api-key created successfully")
+            return res.status(201).json(ResponseFormatter.success(apiKey, "Client Api key created successfully", 201))
+        } catch (error) {
+            next(error);
+            logger.error('Error while creating the client api-key ', error)
+        }
+    }
+
+
+    async getAllApiKeys(req, res, next) {
+        try {
+            const clientId = req.params.clientId;
+            const apiKeys = await this.clientService.getAllApiKeys(clientId, req.user)
+
+            return res.status(200).json(ResponseFormatter.success(apiKeys, "Client Api key fetched successfully", 200))
+        } catch (error) {
+            next(error);
+            logger.error('Error while fetching the client api-keys ', error)
+        }
+    }
+
 }
 
 export default ClientController

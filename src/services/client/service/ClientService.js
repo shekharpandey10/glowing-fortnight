@@ -1,6 +1,8 @@
 import logger from "../../../shared/config/logger.js"
 import { APPLICATION_ROLES, isValidClientRole } from "../../../shared/constants/roles.js"
 import AppError from "../../../shared/utils/AppError.js"
+import { v4 as uuidv4 } from 'uuid'
+import { randomBytes } from 'node:crypto';
 
 
 class ClientService {
@@ -47,6 +49,12 @@ class ClientService {
         return adminUser.clientId && adminUser.clientId.toString() === clientId.toString()
     }
 
+    generateApiKey(keyId) {
+        const prefix = 'apim'
+        const random = randomBytes(20).toString('hex')
+        return `${prefix}_${random}`
+    }
+
 
     async createClient(clientData, adminUser) {
         try {
@@ -71,6 +79,11 @@ class ClientService {
 
     async createClientUser(clientId, clientUserData, adminUser) {
         try {
+
+            const client = await this.ClientRepository.findById(clientId)
+            if (!client) {
+                throw new AppError("Client not found", 404)
+            }
             if (!this.canUserAccessClient(adminUser, clientId)) {
                 logger.error("doesn't have the access")
                 throw new AppError("Access denied", 403)
@@ -80,10 +93,7 @@ class ClientService {
             if (!isValidClientRole(role)) {
                 throw new AppError("Give valid role, Access denied", 400)
             }
-            const client = await this.ClientRepository.findById(clientId)
-            if (!client) {
-                throw new AppError("Client not found", 404)
-            }
+
 
             let permissions = {
                 canCreateApiKey: false,
@@ -92,7 +102,7 @@ class ClientService {
                 canExportData: false
             }
 
-            if (role = APPLICATION_ROLES.CLIENT_ADMIN) {
+            if (role === APPLICATION_ROLES.CLIENT_ADMIN) {
                 permissions = {
                     canCreateApiKey: true,
                     canManageUsers: true,
@@ -111,6 +121,67 @@ class ClientService {
             return this.formatClientForResponse(user)
         } catch (error) {
             logger.error('error while client user creation ', error)
+            throw error
+        }
+    }
+    async createApiKey(clientId, apiKeyPayload, user) {
+        try {
+
+            const client = await this.ClientRepository.findById(clientId)
+            if (!client) {
+                throw new AppError("Client not found", 404)
+            }
+            if (!this.canUserAccessClient(user, clientId)) {
+                logger.error("doesn't have the access")
+                throw new AppError("Access denied", 403)
+            }
+
+            if (!(user.role === APPLICATION_ROLES.CLIENT_ADMIN || user.role === APPLICATION_ROLES.SUPER_ADMIN)) {
+                throw new AppError('Access denied- only super admin and client admin can create Api keys', 403)   //here either it is client viewer or unauthorize.
+            }
+
+
+
+            const { name, description, environment = process.env.NODE_ENV || 'production' } = apiKeyPayload
+            const keyId = uuidv4();
+            const keyValue = this.generateApiKey(keyId)
+            const apiKeyData = {
+                name,
+                description,
+                environment,
+                clientId,
+                keyId,
+                keyValue,
+                createdBy: user.userId
+            }
+            const apikey = await this.ApiKeyRepository.create(apiKeyData)
+            logger.info('Api key created successfully for  ', user.userId)
+            return apikey
+        } catch (error) {
+            logger.error('error while client user creation ', error)
+            throw error
+        }
+    }
+
+
+    async getAllApiKeys(clientId, user) {
+        try {
+            const client = await this.ClientRepository.findById(clientId)
+            if (!client) {
+                throw new AppError("Client not found", 404)
+            }
+
+            const apiKeys = await this.ApiKeyRepository.findByClientId(clientId)
+
+            const formattedResponse = apiKeys.map((key) => {
+                const keyObj = key.toObject ? key.toObject() : key
+                delete keyObj.keyValue  //prevent to get the api key value
+                return keyObj
+            })
+            logger.info('Api key fetched successfully for  ', formattedResponse)
+            return formattedResponse
+        } catch (error) {
+            logger.error('error while fetching api keys  ', error)
             throw error
         }
     }

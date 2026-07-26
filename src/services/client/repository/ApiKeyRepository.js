@@ -1,3 +1,4 @@
+import logger from "../../../shared/config/logger.js";
 import ApiKey from "../../../shared/models/ApiKey.js";
 import ApiKeyBaseRepository from "./ApiKeyBaseRepository.js";
 
