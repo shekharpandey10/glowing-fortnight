@@ -35,7 +35,7 @@ class UserRepository extends BaseRepository {
 
     async findById(userId) {
         try {
-            const user = new this.model.findById(userId)
+            const user = await this.model.findById(userId)
             return user
         } catch (error) {
             logger.info('Error finding user by userId ', error)
@@ -45,7 +45,7 @@ class UserRepository extends BaseRepository {
 
     async findByUsername(username) {
         try {
-            const user = new this.model.findOne({ username })
+            const user = await this.model.findOne({ username })
             return user
         } catch (error) {
             logger.info('Error finding user by username ', error)
@@ -54,7 +54,7 @@ class UserRepository extends BaseRepository {
     }
     async findByEmail(email) {
         try {
-            const user = new this.model.findOne({ email })
+            const user = await this.model.findOne({ email })
             return user
         } catch (error) {
             logger.info('Error finding user by email ', error)
@@ -64,7 +64,7 @@ class UserRepository extends BaseRepository {
 
     async findAll() {
         try {
-            const users = new this.model.findAll({ isActive: true }).select('-password')
+            const users = await this.model.find({ isActive: true }).select('-password')
             return users
         } catch (error) {
             logger.info('Error finding all users ', error)

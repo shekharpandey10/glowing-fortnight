@@ -15,7 +15,7 @@ const validate = (schema) => (req, res, next) => {
      */
     Object.entries(schema).forEach(([field, rule]) => {
         const value = body[field];
-        if (rule.require && !value) {
+        if (rule.required && !value) {
             errors.push(`${field}  is required`)
             return
         }

@@ -9,7 +9,8 @@ import rabbitmq from './shared/config/rabbitmq.js'
 import errorHandler from './shared/middleware/errorHandler.js'
 import ResponseFormatter from './shared/utils/ResponseFormatter.js';
 import authRoute from './services/auth/routes/authRoute.js'
-
+import clientRoute from './services/client/routes/clientRoutes.js'
+import cookieParser from "cookie-parser";
 const app = express()
 app.use(helmet())
 app.use(cors(
@@ -20,7 +21,7 @@ app.use(cors(
 ))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
+app.use(cookieParser())
 app.use((req, res, next) => {
     logger.info(`${req.method} ${req.path} `, {
         ip: req.ip,
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
  * routes
  */
 app.use('/api/auth', authRoute)
+app.use('/api/client', clientRoute)
 
 
 
