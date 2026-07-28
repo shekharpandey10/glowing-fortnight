@@ -37,7 +37,7 @@ export class CircuitBreaker {
         const prevState = this._state
         this._state = newState
         if (newState === CircuitState.HALF_OPEN) {
-            this.halfOpenMaxAttampts = 0
+            this._halfOpenAttempts = 0
             this._halfOpenSuccesses = 0
             this.logger.info(`[circuitBreaker] ${prevState} => Half Open`)
         }
@@ -91,8 +91,16 @@ export class CircuitBreaker {
     }
 
     onSuccess() {
+
+        this.logger.info('[CircuitBreaker] success recorded', {
+            state: this._state,
+            halfOpenSuccesses: this._halfOpenSuccesses,
+            halfOpenMaxAttempts: this.halfOpenMaxAttempts,
+            failures: this._failures
+        });
         if (this._state === CircuitState.HALF_OPEN) {
             this._halfOpenSuccesses++
+            this.logger.info(`[CircuitBreaker] HALF_OPEN success ${this._halfOpenSuccesses}/${this.halfOpenMaxAttempts}`);
             if (this._halfOpenSuccesses >= this.halfOpenMaxAttampts) {
                 this._reset() //again go to the close mode 
                 this.logger.info(`[circuitBreaker] reset to CLOSED after successful half-open problems`)
@@ -101,7 +109,6 @@ export class CircuitBreaker {
             if (this._failures > 0) {
                 this.failure = 0
                 this.logger.info(`[circuitBreaker] failure counter reset after successful half-open problems`)
-
             }
         }
     }
@@ -119,6 +126,12 @@ export class CircuitBreaker {
         }
     }
 
+    /**
+ * Returns a snapshot of the current state of the circuit breaker.
+ * @returns {{state: string, failures: number, lastFailureTime: number, halfOpenAttempts: number, halfOpenSuccesses: number, cooldownMs: number,failureThreshold: number}} 
+ * The snapshot of the circuit breaker state.
+ * @private
+ */
     snapshot() {
         return {
             state: this.state,
