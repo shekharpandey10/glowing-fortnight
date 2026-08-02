@@ -22,7 +22,7 @@ class ConfirmChannelManager extends EventEmitter {
             return this._channel
         }
 
-        if (this._connecting) {
+        if (this._connecting) {   //handle concurency 
             return new Promise((resolve, reject) => {
                 this._connectWaiters.push({ resolve, reject })
             })
@@ -79,3 +79,5 @@ class ConfirmChannelManager extends EventEmitter {
 
     }
 }
+
+export default ConfirmChannelManager

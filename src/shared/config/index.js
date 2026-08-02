@@ -45,6 +45,18 @@ const config = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         expiresIn: 24 * 60 * 60 * 1000
+    },
+    circuitbreaker: {
+        faliureThreshold: 5,
+        coolDownMs: 30_000,
+        halfOpenMaxAttampts: 3,
+    }
+    ,
+    retrystrategy: {
+        maxRetry: 3,
+        baseDelayMs: 200,
+        maxDelayMs: 5000,
+        jitterFactor: 0.3
     }
 }
 
