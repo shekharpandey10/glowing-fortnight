@@ -106,6 +106,20 @@ class ClientRepository extends ClientBaseRepository {
             throw error
         }
     }
+
+    async getClientByApiKey(apiKey, includeInactive = false) {
+        try {
+            const filter = { keyValue };
+            if (!includeInactive) {
+                filter.isActive = true;
+            }
+            const apiKey = await this.model.findOne(filter).populate('clientId')
+            return apiKey
+        } catch (error) {
+            logger.error('Error finding API key by value:', error);
+            throw error;
+        }
+    }
 }
 
 export default ClientRepository

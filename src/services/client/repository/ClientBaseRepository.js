@@ -22,6 +22,9 @@ class ClientBaseRepository {
     async count(filter) {
         throw new Error('Method not implemented.')
     }
+    async getClientByApiKey(apiKey, includeInactive) {
+        throw new Error('Method not implemented.')
+    }
 
 }
 export default ClientBaseRepository
