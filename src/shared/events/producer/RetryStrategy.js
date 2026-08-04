@@ -8,8 +8,12 @@ export const RETRYABLE_PATTERNS = [
     'connection closed',
     'ECONNRESET',
     'ECONNREFUSED',
+    'EAI_AGAIN',
+    'ENOTFOUND',
     'ETIMEDOUT',
     'buffer full',
+    'createConfirmChannel',
+    'getaddrinfo',
     'heartbeat timeout',
     'not available',
     'server connection closed',
@@ -52,7 +56,7 @@ class RetryStrategy {
    * @returns {number} - The delay in milliseconds for the next retry attempt.
    */
     delay(attempt) {
-        const exponential = this.baseDelayMs * Math.pow(2 * attempt)  //exponential backoff
+        const exponential = this.baseDelayMs * Math.pow(2, attempt)  //exponential backoff
         const capped = Math.min(exponential, this.maxDelayMs)
 
         const jitterRange = capped * this.jitterFactor

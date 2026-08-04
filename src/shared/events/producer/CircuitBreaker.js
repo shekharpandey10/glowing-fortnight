@@ -39,7 +39,10 @@ export class CircuitBreaker {
         if (newState === CircuitState.HALF_OPEN) {
             this._halfOpenAttempts = 0
             this._halfOpenSuccesses = 0
-            this.logger.info(`[circuitBreaker] ${prevState} => Half Open`)
+        this.logger.info('[CircuitBreaker] state changed', {
+            from: prevState,
+            to: newState,
+        })
         }
     }
 
@@ -95,19 +98,22 @@ export class CircuitBreaker {
         this.logger.info('[CircuitBreaker] success recorded', {
             state: this._state,
             halfOpenSuccesses: this._halfOpenSuccesses,
-            halfOpenMaxAttempts: this.halfOpenMaxAttempts,
+            halfOpenMaxAttempts: this.halfOpenMaxAttampts,
             failures: this._failures
         });
         if (this._state === CircuitState.HALF_OPEN) {
             this._halfOpenSuccesses++
-            this.logger.info(`[CircuitBreaker] HALF_OPEN success ${this._halfOpenSuccesses}/${this.halfOpenMaxAttempts}`);
+            this.logger.info('[CircuitBreaker] half-open success recorded', {
+                halfOpenSuccesses: this._halfOpenSuccesses,
+                halfOpenMaxAttempts: this.halfOpenMaxAttampts,
+            });
             if (this._halfOpenSuccesses >= this.halfOpenMaxAttampts) {
                 this._reset() //again go to the close mode 
                 this.logger.info(`[circuitBreaker] reset to CLOSED after successful half-open problems`)
             }
 
             if (this._failures > 0) {
-                this.failure = 0
+                this._failures = 0
                 this.logger.info(`[circuitBreaker] failure counter reset after successful half-open problems`)
             }
         }
@@ -115,13 +121,18 @@ export class CircuitBreaker {
 
     onFailure() {
         if (this._state === CircuitState.HALF_OPEN) {
-            this.logger.info(`[circuitBreaker]  half-open failed reopening`)
+            this.logger.info('[CircuitBreaker] half-open failed, reopening')
             this._openCircuit()
             return;
         }
-        this.failure++
+        this._failures++
         this._lastFailureTime = Date.now()
-        if (this.failure > this.faliureThreshold) {
+        this.logger.warn('[CircuitBreaker] failure recorded', {
+            failures: this._failures,
+            failureThreshold: this.faliureThreshold,
+            state: this._state,
+        })
+        if (this._failures >= this.faliureThreshold) {
             this._openCircuit()
         }
     }
@@ -135,7 +146,7 @@ export class CircuitBreaker {
     snapshot() {
         return {
             state: this.state,
-            failure: this.failure,
+            failures: this._failures,
             lastFailuretime: this._lastFailureTime,
             halfOpenAttempts: this._halfOpenAttempts,
             halfOpenSuccesses: this._halfOpenSuccesses

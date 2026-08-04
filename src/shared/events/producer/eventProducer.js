@@ -62,8 +62,9 @@ export class EventProducer {
 
 
         while (true) {
+            const attemptNumber = attempt + 1;
             try {
-                await this._publish(eventData, { correlationId, attempt })
+                await this._publish(eventData, { correlationId, attemptNumber })
                 const latencyMs = Date.now() - startMs
                 this._circuitBreaker.onSuccess();
                 this._incrementMetric('published');
@@ -71,7 +72,7 @@ export class EventProducer {
                 this._logger.info('[EventProducer] published', {
                     eventId: eventData.eventId,
                     correlationId,
-                    attempt: attempt + 1,
+                    attempt: attemptNumber,
                     latencyMs,
                     endpoint: eventData.endpoint,
                 });
@@ -82,7 +83,7 @@ export class EventProducer {
                 this._logger.error('[EventProducer] publish attempt failed', {
                     eventId: eventData.eventId,
                     correlationId,
-                    attempt: attempt + 1,
+                    attempt: attemptNumber,
                     error: error.message,
                 });
                 const canRetry = isRetryable(error) && this._retryStrategy.shouldRetry(attempt);
@@ -93,8 +94,23 @@ export class EventProducer {
                     if (!this._retryStrategy.shouldRetry(attempt)) {
                         this._incrementMetric('retriesExhausted');
                     }
-                    throw error
+                    this._logger.error('[EventProducer] publish failed; returning rejected state', {
+                        eventId: eventData.eventId,
+                        correlationId,
+                        attempt: attemptNumber,
+                        retryable: isRetryable(error),
+                        circuitBreaker: this._circuitBreaker.snapshot(),
+                        error: error.message,
+                    })
+                    return false
                 }
+                this._logger.info('[EventProducer] retrying publish', {
+                    eventId: eventData.eventId,
+                    correlationId,
+                    failedAttempt: attemptNumber,
+                    nextAttempt: attemptNumber + 1,
+                    error: error.message,
+                })
                 await this._retryStrategy.wait(attempt);
                 attempt++
             }
@@ -102,11 +118,11 @@ export class EventProducer {
     }
 
 
-    async _publish(eventData, { correlationId, attempt }) {
+    async _publish(eventData, { correlationId, attemptNumber }) {
         this._logger.debug('[EventProducer] getting channel for publish', {
             eventId: eventData.eventId,
             correlationId,
-            attempt: attempt + 1,
+            attempt: attemptNumber,
             queueName: this._queueName,
         })
         const channel = await this._channelManager.getChannel()
@@ -114,7 +130,7 @@ export class EventProducer {
             type: EVENT_TYPES.API_HIT,
             data: eventData,
             publishedAt: new Date().toISOString(),
-            attempt: attempt + 1
+            attempt: attemptNumber
         }
 
 

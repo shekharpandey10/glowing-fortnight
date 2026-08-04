@@ -98,8 +98,16 @@ async function initConnection() {
         logger.info('PostgreSQL connection ready')
 
         logger.info('Connecting RabbitMQ')
-        await rabbitmq.connect()
-        logger.info('RabbitMQ connected')
+        try {
+            await rabbitmq.connect()
+            logger.info('RabbitMQ connected')
+        } catch (error) {
+            logger.error('RabbitMQ unavailable during startup; server will continue in degraded mode', {
+                message: error?.message,
+                stack: error?.stack,
+                code: error?.code,
+            })
+        }
 
         logger.info('Successfully connected Establish')
     } catch (error) {

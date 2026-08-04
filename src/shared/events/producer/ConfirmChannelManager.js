@@ -40,14 +40,22 @@ class ConfirmChannelManager extends EventEmitter {
                 connection = this.rabbitmq.connection
             } else {
                 this.logger.debug('[ChannelManager] no RabbitMQ connection found, connecting')
-                const baseChannel = await this.rabbitmq.connect()
+                await this.rabbitmq.connect()
 
-                if (!baseChannel?.connection) {
+                if (!this.rabbitmq.connection) {
                     throw new Error('Failed to connect with Rabbitmq instance')
                 }
-                connection = baseChannel.connection
+                connection = this.rabbitmq.connection
             }
 
+            if (typeof connection.createConfirmChannel !== 'function') {
+                this.logger.error('[ChannelManager] RabbitMQ connection does not support confirm channels', {
+                    connectionKeys: Object.keys(connection || {}),
+                    hasCreateChannel: typeof connection?.createChannel === 'function',
+                    hasCreateConfirmChannel: typeof connection?.createConfirmChannel === 'function',
+                })
+                throw new Error('RabbitMQ connection does not support createConfirmChannel')
+            }
 
             const confirmChannel = await connection.createConfirmChannel()
             confirmChannel.on('drain', () => this.emit('drain'))
