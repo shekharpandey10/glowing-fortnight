@@ -4,18 +4,18 @@ import ClientController from "../controller/ClientController.js";
 import ApiKeyRepository from "../repository/ApiKeyRepository.js";
 import ClientRepository from "../repository/ClientRepository.js";
 import ClientService from "../service/clientService.js";
+import logger from "../../../shared/config/logger.js";
 
 
 class Container {
     static init() {
+        logger.info('[ClientDependencies] initializing dependencies')
         const repositories = {
             clientRepository: ClientRepository,
             userRepository: UserRepository,
             apiKeyRepository: ApiKeyRepository,
 
         }
-        console.log(ClientRepository);
-        console.log(repositories.clientRepository);
 
         const services = {
             authService: new AuthService(new repositories.userRepository()),
@@ -29,6 +29,7 @@ class Container {
         const controller = {
             clientController: new ClientController(services.clientService, services.authService)
         }
+        logger.info('[ClientDependencies] initialized successfully')
         return { repositories, services, controller }
     }
 

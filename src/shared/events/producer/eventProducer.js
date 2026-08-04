@@ -20,6 +20,10 @@ export class EventProducer {
             retriesExhausted: 0
         }
         this._shuttingDown = false
+
+        this._logger.info('[EventProducer] created', {
+            queueName: this._queueName,
+        })
     }
 
 
@@ -28,6 +32,12 @@ export class EventProducer {
     }
 
     async publishApiHit(eventData, opts = {}) {
+        this._logger.debug('[EventProducer] publish requested', {
+            eventId: eventData?.eventId,
+            endpoint: eventData?.endpoint,
+            queueName: this._queueName,
+        })
+
         if (this._shuttingDown) {
             const error = new Error("EventProducer is shutting down");
             error.code = 'SHUTDOWN_IN_PROGRESS';
@@ -93,6 +103,12 @@ export class EventProducer {
 
 
     async _publish(eventData, { correlationId, attempt }) {
+        this._logger.debug('[EventProducer] getting channel for publish', {
+            eventId: eventData.eventId,
+            correlationId,
+            attempt: attempt + 1,
+            queueName: this._queueName,
+        })
         const channel = await this._channelManager.getChannel()
         const message = {
             type: EVENT_TYPES.API_HIT,
@@ -129,6 +145,13 @@ export class EventProducer {
                     eventId: eventData.eventId,
                 });
             }
+
+            this._logger.debug('[EventProducer] publish written to channel', {
+                eventId: eventData.eventId,
+                correlationId,
+                queueName: this._queueName,
+                written,
+            })
 
 
             const onDrain = () => {

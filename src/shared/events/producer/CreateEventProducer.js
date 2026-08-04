@@ -14,11 +14,31 @@ import RetryStrategy from './RetryStrategy.js'
 export default function createEventProducer(overrides = {}) {
     const log = overrides.logger ?? logger
     const rmq = overrides.rabbitmq ?? rabbitmq
-    const queueName = overrides.queueName ?? config.rabbitmq.queueName
+    const queueName = overrides.queueName ?? config.rabbitmq.queueName ?? config.rabbitmq.queue
 
-    if (!log) throw new Error('RabbitMq connection manager is required.')
-    if (!queueName) throw new Error('Queue name must be specified.')
-    if (!config.rabbitmq.retryAttampts || config.rabbitmq.retryAttampts < 0) throw new Error('Invalid configuration ')
+    log.info('[CreateEventProducer] initializing', {
+        queueName,
+        hasRabbitmqUrl: Boolean(config.rabbitmq.url),
+        retryAttampts: config.rabbitmq.retryAttampts,
+        retryStrategy: config.retrystrategy,
+        circuitbreaker: config.circuitbreaker,
+    })
+
+    if (!log) throw new Error('Logger is required.')
+    if (!rmq) throw new Error('RabbitMq connection manager is required.')
+    if (!queueName) {
+        log.error('[CreateEventProducer] missing queue name', {
+            configRabbitmq: config.rabbitmq,
+            overrideQueueName: overrides.queueName,
+        })
+        throw new Error('Queue name must be specified.')
+    }
+    if (!config.rabbitmq.retryAttampts || config.rabbitmq.retryAttampts < 0) {
+        log.error('[CreateEventProducer] invalid RabbitMQ retry configuration', {
+            retryAttampts: config.rabbitmq.retryAttampts,
+        })
+        throw new Error('Invalid configuration ')
+    }
 
 
     const channelManager = overrides.channelManager ?? new ConfirmChannelManager({ rabbitmq: rmq, logger: log })
@@ -30,11 +50,13 @@ export default function createEventProducer(overrides = {}) {
     })
 
     const retryStrategy = overrides.retryStrategy ?? new RetryStrategy({
-        maxRetry: config.retrystrategy.maxDelayMs ?? 3,
+        maxRetry: config.retrystrategy.maxRetry ?? 3,
         baseDelayMs: config.retrystrategy.baseDelayMs ?? 200,
         maxDelayMs: config.retrystrategy.maxDelayMs ?? 5000,
         jitterFactor: config.retrystrategy.jitterFactor ?? 0.3
     })
+
+    log.info('[CreateEventProducer] initialized successfully', { queueName })
 
     return new EventProducer({
         channelManager,

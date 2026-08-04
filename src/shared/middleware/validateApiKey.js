@@ -1,14 +1,14 @@
 import logger from '../config/logger.js'
 import ResponseFormatter from '../utils/ResponseFormatter.js'
 import clientContainer from '../../../src/services/client/Dependencies/dependency.js'
-const validateApiKey = (req, res, next) => {
+const validateApiKey = async (req, res, next) => {
     try {
-        const apiKey = req.headers('x-api-key')
+        const apiKey = req.headers['x-api-key']
         if (!apiKey) {
-            logger.warn(`Api request without api key ${{
+            logger.warn('API request without API key', {
                 path: req.path,
                 ip: req.ip
-            }} `)
+            })
 
             return res.status(401).json(ResponseFormatter.error({}, "Api key is required", 401))
         }
@@ -67,7 +67,13 @@ const validateApiKey = (req, res, next) => {
 
         next();
     } catch (error) {
-        logger.error('Error validating API key:', error);
+        logger.error('Error validating API key', {
+            message: error?.message,
+            stack: error?.stack,
+            code: error?.code,
+            path: req.path,
+            ip: req.ip,
+        });
         return res
             .status(500)
             .json(ResponseFormatter.error('Internal server error', 500));

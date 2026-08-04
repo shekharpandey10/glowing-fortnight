@@ -26,8 +26,9 @@ const config = {
 
     //RabbitMQ
     rabbitmq: {
-        url: process.env.RABBITMQ_URL,
-        queue: process.env.RABBITMQ_QUEUE,
+        url: process.env.RABBITMQ_URL || 'amqp://api_user:shekhar@rabbitmq:5672/api_monitoring',
+        queueName: process.env.RABBITMQ_QUEUE || 'api_hits',
+        queue: process.env.RABBITMQ_QUEUE || 'api_hits',
         publisherConfirms: process.env.RABBITMQ_PUBLISHER_CONFIRMS || false,
         retryAttampts: parseInt(process.env.RABBITMQ_RETRY_ATTAMPTS) || 3,
         retryDeley: parseInt(process.env.RABBITMQ_RETRY_DELEY) || 1000

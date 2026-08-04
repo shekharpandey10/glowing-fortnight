@@ -50,10 +50,10 @@ export class CircuitBreaker {
     _openCircuit() {
         this._lastFailureTime = Date.now()
         this._transitionTo(CircuitState.OPEN)
-        this.logger.error(`[circuitBreaker] OPEN ${{
+        this.logger.error('[CircuitBreaker] opened', {
             failure: this._failures,
             coolDownMs: this.coolDownMs
-        }}`)
+        })
     }
 
     /**
