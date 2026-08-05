@@ -66,7 +66,7 @@ export class MetricsRepository extends BaseRepository {
             const safeLimit = Math.min(Math.max(1, limit), MAX_LIMIT)   //max limit control
             const safeOffset = Math.max(0, offset)
 
-            const query = `
+            let query = `
                 SELECT 
                     service_name,
                     endpoint,
@@ -80,7 +80,7 @@ export class MetricsRepository extends BaseRepository {
                 FROM endpoint_metrics
             `
             const params = []
-            const paramIndex = -1
+            let paramIndex = -1
 
             let whereConditions = []
             if (clientId !== null) {
