@@ -26,29 +26,16 @@ class MongoConnection {
                 dbName: config.mongo.dbName
             })
             this.connection = mongoose.connection
-            logger.info('MongoDB connected', {
-                dbName: config.mongo.dbName,
-                hasUri: Boolean(config.mongo.uri),
-            })
+            logger.info(`MongoDb connected ${config.mongo.uri}`)
             this.connection.on("error", (err) => {
-                logger.error('MongoDB connection emitted error', {
-                    message: err?.message,
-                    stack: err?.stack,
-                    code: err?.code,
-                })
+                logger.error(`MongoDb connection Error ${err}`)
             })
             this.connection.on('disconnected', () => {
-                logger.warn('MongoDB disconnected')
+                console.log('mongoDb disconnected')
             })
             return this.connection
         } catch (error) {
-            logger.error('Failed to connect MongoDB', {
-                message: error?.message,
-                stack: error?.stack,
-                code: error?.code,
-                dbName: config.mongo.dbName,
-                hasUri: Boolean(config.mongo.uri),
-            })
+            logger.error('Failed to connect mongoDb ', error)
             throw error
         }
     }
@@ -66,11 +53,7 @@ class MongoConnection {
             }
 
         } catch (error) {
-            logger.error('Failed to disconnect MongoDB', {
-                message: error?.message,
-                stack: error?.stack,
-                code: error?.code,
-            })
+            logger.error('Failed to disconnect mongoDb ', error)
             throw error
         }
 

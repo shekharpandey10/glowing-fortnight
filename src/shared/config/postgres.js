@@ -24,18 +24,9 @@ class PostgresConnection {
             })
         }
         this.pool.on('error', (error) => {
-            logger.error('Unexpected error on idle PG client', {
-                message: error?.message,
-                stack: error?.stack,
-                code: error?.code,
-            })
+            logger.error(`Unexpected error on idle PG Client ${error}`)
         })
-        logger.info('PG pool ready', {
-            host: config.postgres.host,
-            port: config.postgres.port,
-            database: config.postgres.database,
-            user: config.postgres.user,
-        })
+        logger.info('PG Pool created')
         return this.pool;
     }
 
@@ -45,19 +36,9 @@ class PostgresConnection {
             const client = await pool.connect()
             const result = await client.query('select NOW()')
             client.release();
-            logger.info('PG connected successfully', {
-                serverTime: result.rows[0].now,
-            })
+            logger.info('Pg connected successfully at ', result.rows[0].now)
         } catch (error) {
-            logger.error('Failed to connect with PG', {
-                message: error?.message,
-                stack: error?.stack,
-                code: error?.code,
-                host: config.postgres.host,
-                port: config.postgres.port,
-                database: config.postgres.database,
-                user: config.postgres.user,
-            })
+            logger.error('Failed to connect with PG ', error)
             throw error
         }
     }
@@ -68,20 +49,10 @@ class PostgresConnection {
         try {
             const result = await pool.query(text, params)
             const duration = Date.now() - start;
-            logger.debug('Executed PG query', {
-                text,
-                duration,
-                rowCount: result.rowCount,
-            })
+            logger.info(`Executed query ${text, duration, rows, result.rowCount}`)
             return result
         } catch (error) {
-            logger.error('PG query failed', {
-                message: error?.message,
-                stack: error?.stack,
-                code: error?.code,
-                text,
-                params,
-            })
+            logger.error(`Query Error: ${text, { error: error.message }} `)
             throw error
         }
     }
@@ -94,20 +65,12 @@ class PostgresConnection {
             }
             await this.pool.end()
             this.pool.on('error', err => {
-                logger.error('PG pool emitted error while closing', {
-                    message: err?.message,
-                    stack: err?.stack,
-                    code: err?.code,
-                })
+                logger.error(`Error while close the pg connection ${err}`)
             })
             this.pool = null
             logger.info('Pg pool closed')
         } catch (error) {
-            logger.error('Error while closing PG connection', {
-                message: error?.message,
-                stack: error?.stack,
-                code: error?.code,
-            })
+            logger.error('Error while close pg connection ', error)
             throw error
         }
     }
