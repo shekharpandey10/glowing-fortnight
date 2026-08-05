@@ -26,8 +26,9 @@ const config = {
 
     //RabbitMQ
     rabbitmq: {
-        url: process.env.RABBITMQ_URL,
-        queue: process.env.RABBITMQ_QUEUE,
+        url: process.env.RABBITMQ_URL || 'amqp://api_user:shekhar@rabbitmq:5672/api_monitoring',
+        queueName: process.env.RABBITMQ_QUEUE || 'api_hits',
+        queue: process.env.RABBITMQ_QUEUE || 'api_hits',
         publisherConfirms: process.env.RABBITMQ_PUBLISHER_CONFIRMS || false,
         retryAttampts: parseInt(process.env.RABBITMQ_RETRY_ATTAMPTS) || 3,
         retryDeley: parseInt(process.env.RABBITMQ_RETRY_DELEY) || 1000
@@ -45,6 +46,18 @@ const config = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         expiresIn: 24 * 60 * 60 * 1000
+    },
+    circuitbreaker: {
+        faliureThreshold: 5,
+        coolDownMs: 30_000,
+        halfOpenMaxAttampts: 3,
+    }
+    ,
+    retrystrategy: {
+        maxRetry: 3,
+        baseDelayMs: 200,
+        maxDelayMs: 5000,
+        jitterFactor: 0.3
     }
 }
 
