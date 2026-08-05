@@ -10,7 +10,6 @@ import errorHandler from './shared/middleware/errorHandler.js'
 import ResponseFormatter from './shared/utils/ResponseFormatter.js';
 import authRoute from './services/auth/routes/authRoute.js'
 import clientRoute from './services/client/routes/clientRoutes.js'
-import ingestRoute from './services/ingest/routes/ingestRoutes.js'
 import cookieParser from "cookie-parser";
 const app = express()
 app.use(helmet())
@@ -35,7 +34,6 @@ app.use((req, res, next) => {
  */
 app.use('/api/auth', authRoute)
 app.use('/api/client', clientRoute)
-app.use('/api/ingest', ingestRoute)
 
 
 
@@ -89,33 +87,15 @@ async function initConnection() {
     try {
         logger.info('Connecting to server')
 
-        logger.info('Connecting MongoDB')
         await mongodb.connect()
-        logger.info('MongoDB connected')
 
-        logger.info('Testing PostgreSQL connection')
         await postgres.testConnection()
-        logger.info('PostgreSQL connection ready')
 
-        logger.info('Connecting RabbitMQ')
-        try {
-            await rabbitmq.connect()
-            logger.info('RabbitMQ connected')
-        } catch (error) {
-            logger.error('RabbitMQ unavailable during startup; server will continue in degraded mode', {
-                message: error?.message,
-                stack: error?.stack,
-                code: error?.code,
-            })
-        }
+        await rabbitmq.connect()
 
         logger.info('Successfully connected Establish')
     } catch (error) {
-        logger.error('Error while connecting to server', {
-            message: error?.message,
-            stack: error?.stack,
-            code: error?.code,
-        })
+        logger.error(`Error while connecct to server ${error}`)
         throw error
     }
 
@@ -126,6 +106,7 @@ const startServer = async () => {
         await initConnection()
 
         const server = app.listen(config.port, () => {
+            console.log(config.port)
             logger.info(`server is running on port ${config.port || 5000}`)
             logger.info(`server is running on Enviroment ${config.node_env}`)
             logger.info(`server is running on endpoint http://localhost:${config.port}`)
@@ -142,11 +123,7 @@ const startServer = async () => {
                     logger.info('All connection closed.')
                     process.exit(0)
                 } catch (error) {
-                    logger.error('Error during shutdown', {
-                        message: error?.message,
-                        stack: error?.stack,
-                        code: error?.code,
-                    })
+                    logger.error('Error during shutdown. ', error)
                     process.exit(1)
                 }
             })
@@ -163,29 +140,11 @@ const startServer = async () => {
             gracefulShutdown('SIGINT')
         })
 
-        process.on('uncaughtException', (error) => {
-            logger.error('Uncaught exception', {
-                message: error?.message,
-                stack: error?.stack,
-                code: error?.code,
-            })
-            gracefulShutdown('uncaughtException')
-        })
-        process.on('unhandledRejection', (reason) => {
-            logger.error('Unhandled promise rejection', {
-                message: reason?.message || String(reason),
-                stack: reason?.stack,
-                code: reason?.code,
-            })
-            gracefulShutdown('unhandledRejection')
-        })
+        process.on('uncaughtException', () => gracefulShutdown('uncaughtException'))
+        process.on('unhandledRejection', () => gracefulShutdown('unhandledRejection'))
 
     } catch (error) {
-        logger.error('Failed to start server', {
-            message: error?.message,
-            stack: error?.stack,
-            code: error?.code,
-        })
+        logger.error('Failed to start server ', error)
         process.exit(1)
     }
 }
